@@ -10,6 +10,17 @@ import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeM
 
 export const UNMAPPED_KEY = '<unmapped>';
 
+
+import {readFileSync} from 'fs'
+
+const mappings = readFileSync('./node_modules/source-map/lib/mappings.wasm');
+
+SourceMapConsumer.initialize({
+  "lib/mappings.wasm": mappings
+});
+
+
+
 /**
  * Analyze a bundle
  */
