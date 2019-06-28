@@ -13,12 +13,8 @@
     "preview-package": "preview && source-map-explorer",
     "coverage": "nyc --reporter=lcov --reporter=text npm test",
     "lint": "eslint src/**/*.* tests/*.* --fix",
-    "check-types": "tsc",
-    "build:clean": "rimraf dist/**/*",
-    "build:compile": "babel src --out-dir dist --extensions \".ts\" --ignore src/*.d.ts",
-    "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs dist",
-    "build:format": "prettier dist/*.js --write",
-    "build": "npm-run-all build:* check-types",
+    "build": "tsc",
+
     "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
     "prepublish": "npm run build"
   },
@@ -28,11 +24,7 @@
       "git add"
     ]
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run test && lint-staged"
-    }
-  },
+
   "snap-shot-it": {
     "useRelativePath": true,
     "extension": ".snap"
