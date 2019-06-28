@@ -1,19 +1,24 @@
 import btoa from 'btoa';
 import ejs from 'ejs';
-import fs from 'fs';
+import {readFileSync} from 'fs';
 import path from 'path';
 import escapeHtml from 'escape-html';
 
 import { formatBytes, getCommonPathPrefix, getFileContent, formatPercent } from './helpers';
 import { ExploreBundleResult, FileSizeMap } from './index';
 
+const webTreemapJs = readFileSync('./src/vendor/webtreemap.js', 'utf8');
+const webtreemapCss = readFileSync('./src/vendor/webtreemap.css', 'utf8');
+
+const templateEJS = readFileSync('./src/tree-viz.ejs', 'utf8');
+
 /**
  * Generate HTML file content for specified files
  */
 export function generateHtml(exploreResults: ExploreBundleResult[]): string {
   const assets = {
-    webtreemapJs: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.js'))),
-    webtreemapCss: btoa(fs.readFileSync(require.resolve('./vendor/webtreemap.css'))),
+    webtreemapJs: btoa(webTreemapJs),
+    webtreemapCss: btoa(webtreemapCss),
   };
 
   // Create a combined bundle if applicable
@@ -34,7 +39,7 @@ export function generateHtml(exploreResults: ExploreBundleResult[]): string {
     return result;
   }, {});
 
-  const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
+  const template = templateEJS;
 
   return ejs.render(template, {
     bundles,

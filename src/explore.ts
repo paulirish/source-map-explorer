@@ -1,5 +1,13 @@
 import convert from 'convert-source-map';
 import path from 'path';
+
+/**
+ *   this didn't work. had to edit the two `require('read-wasm')` in the source-map module source to add `-browser`
+ */
+// let readWasm = require('source-map/lib/read-wasm.js');
+// const readWasmBrowser = require('source-map/lib/read-wasm-browser.js');
+// readWasm = readWasmBrowser;
+
 import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } from 'source-map';
 import { mapKeys } from 'lodash';
 
@@ -11,12 +19,11 @@ import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeM
 export const UNMAPPED_KEY = '<unmapped>';
 
 
+/* gotta initialize wasm */
 import {readFileSync} from 'fs'
-
 const mappings = readFileSync('./node_modules/source-map/lib/mappings.wasm');
-
 SourceMapConsumer.initialize({
-  "lib/mappings.wasm": mappings
+  "lib/mappings.wasm": mappings.buffer
 });
 
 

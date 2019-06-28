@@ -15,7 +15,7 @@
     "lint": "eslint src/**/*.* tests/*.* --fix",
     "tsc": "tsc",
     "dev": "parcel ./src/index.html",
-    "build": "parcel build ./src/index.html",
+    "build": "parcel build ./src/index.html --no-content-hash --no-minify ",
     "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
     "prepublish": "npm run build"
   },
@@ -73,7 +73,7 @@
     "glob": "^7.1.4",
     "lodash": "^4.17.11",
     "open": "^6.3.0",
-    "source-map": "^0.7.3",
+    "source-map": "0.8.0-beta.0",
     "source-map-explorer": "^2.0.1",
     "temp": "^0.9.0",
     "yargs": "^13.2.4"
