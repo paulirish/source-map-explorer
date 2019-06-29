@@ -11,7 +11,7 @@ import {
   ExploreErrorResult,
   ExploreBundleResult,
 } from './index';
-import { formatOutput, saveOutputToFile } from './output';
+import { saveOutputToFile } from './output';
 
 /**
  * Analyze bundle(s)
@@ -109,7 +109,7 @@ function getExploreResult(
   return {
     bundles,
     errors,
-    ...(bundles.length > 0 && { output: formatOutput(bundles, options) }),
+    ...(bundles.length > 0 && { output: bundles }),
   };
 }
 
