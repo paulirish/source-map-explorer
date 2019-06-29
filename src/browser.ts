@@ -12,5 +12,6 @@ export function exploreSM(code, map) {
     map: Buffer.from(map),
   });
 }
+
 // Provide global for DevTools frontend
 window.exploreSourceMap = exploreSM;
