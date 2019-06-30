@@ -28,11 +28,7 @@
       "git add"
     ]
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run test && lint-staged"
-    }
-  },
+
   "snap-shot-it": {
     "useRelativePath": true,
     "extension": ".snap"
@@ -122,7 +118,7 @@
     "eslint": "^5.16.0",
     "eslint-config-prettier": "^5.0.0",
     "eslint-plugin-prettier": "^3.1.0",
-    "husky": "^2.4.1",
+
     "lint-staged": "^8.2.1",
     "mocha": "^6.1.4",
     "npm-run-all": "^4.1.5",
