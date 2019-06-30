@@ -10,6 +10,114 @@ import { File, Bundle, ExploreOptions, ExploreBundleResult, FileSizes, FileSizeM
 
 export const UNMAPPED_KEY = '<unmapped>';
 
+
+
+const fs = require('fs');
+const resolve = require('resolve');
+
+// In order to maintain consistent global scope across the files,
+// and share natives like Array, etc, We will eval things within our sandbox
+function requireval(path) {
+  const res = resolve.sync(path, {basedir: __dirname});
+  const filesrc = fs.readFileSync(res, 'utf8');
+  // eslint-disable-next-line no-eval
+  eval(filesrc + '\n\n//# sourceURL=' + path);
+}
+global.window = global.self = global.global = global;
+global.SDK = {};
+global.Common = {};
+requireval('../../source-map/cdt/common/Object.js');
+requireval('../../source-map/cdt/common/Console.js');
+requireval('../../source-map/cdt/platform/utilities.js');
+requireval('../../source-map/cdt/sdk/SourceMap.js');
+
+
+
+// Mirror of sourcemapconsumer API but using the CDT impl
+class CDTSourceMapConsumer {
+  constructor(payload) {
+    if (typeof payload === 'string') {
+      if (payload.slice(0, 3) === ')]}')
+        payload = payload.substring(payload.indexOf('\n'));
+      payload = JSON.parse(payload);
+    }
+    this._map = new SDK.TextSourceMap(`compiled.js`, `compiled.js.map`, payload);
+    this._json = payload;
+    // console.log(this._map);
+    return Promise.resolve(this);
+  }
+  get sources() {
+    return this._map.sourceURLs();
+  }
+  get sourceRoot() {
+    return this._json.sourceRoot;
+  }
+  originalPositionFor({line, column, bias}) {
+    // assert.equal(bias, null);
+    const lineNumber0 = line - 1;
+    // findEntry takes compiled locations and returns original locations.
+    const entry = this._map.findEntry(lineNumber0, column);
+    if (!entry) {
+      return {
+        column: null,
+        line: null,
+        name: null,
+        source: null,
+      };
+    }
+    const res = {
+      source: entry.sourceURL,
+      line: entry.sourceLineNumber + 1,
+      column: entry.sourceColumnNumber,
+      name: entry.name
+    };
+    return res;
+  }
+  generatedPositionFor({source, line, column, bias}) {
+    // assert.equal(bias, null);
+    const lineNumber0 = line - 1;
+    const entry = this._map.sourceLineMapping(source, lineNumber0, column);
+    const res = { // generated source
+      line: entry.lineNumber + 1,
+      column: entry.columnNumber,
+    };
+    return res;
+  }
+
+  /**
+   * @param {*} callback The function that is called with each mapping. Mappings have the form { source, generatedLine, generatedColumn, originalLine, originalColumn, name }
+   * @param {*} context Optional. If specified, this object will be the value of this every time that callback is called.
+   * @param {*} order Either SourceMapConsumer.GENERATED_ORDER or SourceMapConsumer.ORIGINAL_ORDER. Specifies whether you want to iterate over the mappings sorted by the generated file's line/column order or the original's source/line/column order, respectively. Defaults to SourceMapConsumer.GENERATED_ORDER.
+   */
+  eachMapping(callback, context, order) {
+    this._map.mappings().forEach(mapping => {
+      // TODO: change NaN's to nulls
+      const ret = {
+        generatedLine: mapping.lineNumber + 1,
+        generatedColumn: mapping.columnNumber,
+        source: mapping.sourceURL === undefined ? null : mapping.sourceURL,
+        originalLine: mapping.sourceLineNumber  + 1,
+        originalColumn: mapping.sourceColumnNumber,
+        name: mapping.name,
+      };
+      callback.call(context, ret);
+    });
+  }
+
+
+  allGeneratedPositionsFor({source, line, column}) {
+    return this._map.findReverseEntries(source, line - 1, column).map(entry => ({
+      line: entry.lineNumber + 1,
+      column: entry.columnNumber
+    }));
+  }
+
+
+  destroy () {}
+};
+
+
+
 /**
  * Analyze a bundle
  */
@@ -53,13 +161,15 @@ interface SourceMapData {
  * Get source map
  */
 async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<SourceMapData> {
+  const useCDT = true;
+  console.log({useCDT, codeFile});
   const codeFileContent = getFileContent(codeFile);
-
+  const impl = useCDT ? CDTSourceMapConsumer : SourceMapConsumer;
   let consumer: Consumer;
 
   if (sourceMapFile) {
     const sourceMapFileContent = getFileContent(sourceMapFile);
-    consumer = await new SourceMapConsumer(sourceMapFileContent);
+    consumer = await new impl(sourceMapFileContent);
   } else {
     // Try to read a source map from a 'sourceMappingURL' comment.
     let converter = convert.fromSource(codeFileContent);
@@ -72,7 +182,7 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
       throw new AppError({ code: 'NoSourceMap' });
     }
 
-    consumer = await new SourceMapConsumer(converter.toJSON());
+    consumer = await new impl(converter.toJSON());
   }
 
   if (!consumer) {
@@ -88,7 +198,7 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
 /** Calculate the number of bytes contributed by each source file */
 function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
   const spans = computeSpans(sourceMapData);
-
+  debugger;
   const files: FileSizeMap = {};
   let unmappedBytes = 0;
   let totalBytes = 0;
