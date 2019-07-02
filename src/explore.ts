@@ -57,7 +57,9 @@ class CDTSourceMapConsumer {
     const lineNumber0 = line - 1;
     // findEntry takes compiled locations and returns original locations.
     const entry = this._map.findEntry(lineNumber0, column);
-    if (!entry) {
+    // without an exact hit, we return no match
+    const hitMyBattleShip = entry && entry.lineNumber === lineNumber0;
+    if (!entry || !hitMyBattleShip) {
       return {
         column: null,
         line: null,
@@ -140,7 +142,7 @@ export async function exploreBundle(
   }
 
   // Free Wasm data
-  sourceMapData.consumer.destroy();
+  sourceMapData.consumer.destroy && sourceMapData.consumer.destroy();
 
   return {
     bundleName: getBundleName(bundle),
@@ -161,7 +163,7 @@ interface SourceMapData {
  * Get source map
  */
 async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<SourceMapData> {
-  const useCDT = true;
+  const useCDT = !!true;
   console.log({useCDT, codeFile});
   const codeFileContent = getFileContent(codeFile);
   const impl = useCDT ? CDTSourceMapConsumer : SourceMapConsumer;
