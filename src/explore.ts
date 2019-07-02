@@ -163,7 +163,7 @@ interface SourceMapData {
  * Get source map
  */
 async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<SourceMapData> {
-  const useCDT = !!true;
+  const useCDT = false;
   console.log({useCDT, codeFile});
   const codeFileContent = getFileContent(codeFile);
   const impl = useCDT ? CDTSourceMapConsumer : SourceMapConsumer;
