@@ -198,7 +198,6 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
 /** Calculate the number of bytes contributed by each source file */
 function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
   const spans = computeSpans(sourceMapData);
-  debugger;
   const files: FileSizeMap = {};
   let unmappedBytes = 0;
   let totalBytes = 0;
@@ -208,7 +207,7 @@ function computeGeneratedFileSizes(sourceMapData: SourceMapData): FileSizes {
 
     totalBytes += numChars;
 
-    if (source === null) {
+    if (source === null || source === undefined) {
       unmappedBytes += numChars;
     } else {
       files[source] = (files[source] || 0) + numChars;
