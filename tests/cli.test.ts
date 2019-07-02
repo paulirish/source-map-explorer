@@ -7,7 +7,7 @@ import { execute, setTestFolder } from './test-helpers';
 // Test compiled source
 const SCRIPT_PATH = path.resolve(__dirname, '../dist/cli.js');
 
-describe('CLI', function() {
+describe.skip('CLI', function() {
   setTestFolder();
 
   it('should validate --replace arguments', async function() {

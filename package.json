@@ -7,7 +7,7 @@
     "source-map-explorer": "dist/cli.js"
   },
   "scripts": {
-    "pretest": "npm run build",
+    "zzpretest": "npm run build",
     "test": "cross-env NODE_ENV=test mocha --opts tests/mocha.opts",
     "test:update-snapshots": "cross-env SNAPSHOT_UPDATE=1 npm run test",
     "preview-package": "preview && source-map-explorer",
@@ -19,8 +19,10 @@
     "build:copy": "copyfiles -u 1 src/vendor/*.* src/tree-viz.ejs dist",
     "build:format": "prettier dist/*.js --write",
     "build": "npm-run-all build:* check-types",
-    "watch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
-    "prepublish": "npm run build"
+    "zzzwatch": "chokidar src/*.* -c \"npm run build\" --silent --initial --debounce=700",
+    "prepublish": "npm run build",
+    "watchloop": "yarn build:compile && yarn test",
+    "watch": "gls */*.ts | entr yarn watchloop"
   },
   "lint-staged": {
     "*.{js,ts}": [

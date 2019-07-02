@@ -1,6 +1,5 @@
 import convert from 'convert-source-map';
 import path from 'path';
-import { BasicSourceMapConsumer, IndexedSourceMapConsumer, SourceMapConsumer } from 'source-map';
 import { mapKeys } from 'lodash';
 
 import { getBundleName } from './api';
@@ -32,91 +31,21 @@ requireval('../../source-map/cdt/platform/utilities.js');
 requireval('../../source-map/cdt/sdk/SourceMap.js');
 
 
-
-// Mirror of sourcemapconsumer API but using the CDT impl
-class CDTSourceMapConsumer {
-  constructor(payload) {
-    if (typeof payload === 'string') {
-      if (payload.slice(0, 3) === ')]}')
-        payload = payload.substring(payload.indexOf('\n'));
-      payload = JSON.parse(payload);
-    }
-    this._map = new SDK.TextSourceMap(`compiled.js`, `compiled.js.map`, payload);
-    this._json = payload;
-    // console.log(this._map);
-    return Promise.resolve(this);
-  }
-  get sources() {
-    return this._map.sourceURLs();
-  }
-  get sourceRoot() {
-    return this._json.sourceRoot;
-  }
-  originalPositionFor({line, column, bias}) {
-    // assert.equal(bias, null);
-    const lineNumber0 = line - 1;
+SDK.TextSourceMap.prototype.findExactEntry = function(line, column) {
     // findEntry takes compiled locations and returns original locations.
-    const entry = this._map.findEntry(lineNumber0, column);
+    const entry = this.findEntry(line, column);
     // without an exact hit, we return no match
-    const hitMyBattleShip = entry && entry.lineNumber === lineNumber0;
+    const hitMyBattleShip = entry && entry.lineNumber === line;
     if (!entry || !hitMyBattleShip) {
       return {
-        column: null,
-        line: null,
+        sourceColumnNumber: null,
+        sourceLineNumber: null,
         name: null,
-        source: null,
+        sourceURL: null,
       };
     }
-    const res = {
-      source: entry.sourceURL,
-      line: entry.sourceLineNumber + 1,
-      column: entry.sourceColumnNumber,
-      name: entry.name
-    };
-    return res;
-  }
-  generatedPositionFor({source, line, column, bias}) {
-    // assert.equal(bias, null);
-    const lineNumber0 = line - 1;
-    const entry = this._map.sourceLineMapping(source, lineNumber0, column);
-    const res = { // generated source
-      line: entry.lineNumber + 1,
-      column: entry.columnNumber,
-    };
-    return res;
-  }
-
-  /**
-   * @param {*} callback The function that is called with each mapping. Mappings have the form { source, generatedLine, generatedColumn, originalLine, originalColumn, name }
-   * @param {*} context Optional. If specified, this object will be the value of this every time that callback is called.
-   * @param {*} order Either SourceMapConsumer.GENERATED_ORDER or SourceMapConsumer.ORIGINAL_ORDER. Specifies whether you want to iterate over the mappings sorted by the generated file's line/column order or the original's source/line/column order, respectively. Defaults to SourceMapConsumer.GENERATED_ORDER.
-   */
-  eachMapping(callback, context, order) {
-    this._map.mappings().forEach(mapping => {
-      // TODO: change NaN's to nulls
-      const ret = {
-        generatedLine: mapping.lineNumber + 1,
-        generatedColumn: mapping.columnNumber,
-        source: mapping.sourceURL === undefined ? null : mapping.sourceURL,
-        originalLine: mapping.sourceLineNumber  + 1,
-        originalColumn: mapping.sourceColumnNumber,
-        name: mapping.name,
-      };
-      callback.call(context, ret);
-    });
-  }
-
-
-  allGeneratedPositionsFor({source, line, column}) {
-    return this._map.findReverseEntries(source, line - 1, column).map(entry => ({
-      line: entry.lineNumber + 1,
-      column: entry.columnNumber
-    }));
-  }
-
-
-  destroy () {}
-};
+    return entry;
+}
 
 
 
@@ -142,7 +71,7 @@ export async function exploreBundle(
   }
 
   // Free Wasm data
-  sourceMapData.consumer.destroy && sourceMapData.consumer.destroy();
+  sourceMapData.sdkSourceMap.destroy && sourceMapData.sdkSourceMap.destroy();
 
   return {
     bundleName: getBundleName(bundle),
@@ -152,10 +81,9 @@ export async function exploreBundle(
   };
 }
 
-type Consumer = BasicSourceMapConsumer | IndexedSourceMapConsumer;
 
 interface SourceMapData {
-  consumer: Consumer;
+  sdkSourceMap: Consumer;
   codeFileContent: string;
 }
 
@@ -163,15 +91,13 @@ interface SourceMapData {
  * Get source map
  */
 async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<SourceMapData> {
-  const useCDT = false;
-  console.log({useCDT, codeFile});
   const codeFileContent = getFileContent(codeFile);
-  const impl = useCDT ? CDTSourceMapConsumer : SourceMapConsumer;
-  let consumer: Consumer;
+  let sdkSourceMap: Consumer;
 
   if (sourceMapFile) {
     const sourceMapFileContent = getFileContent(sourceMapFile);
-    consumer = await new impl(sourceMapFileContent);
+    const json = JSON.parse(sourceMapFileContent);
+    sdkSourceMap = new SDK.TextSourceMap(`compiled.js`, `compiled.js.map`, json);
   } else {
     // Try to read a source map from a 'sourceMappingURL' comment.
     let converter = convert.fromSource(codeFileContent);
@@ -184,15 +110,15 @@ async function loadSourceMap(codeFile: File, sourceMapFile?: File): Promise<Sour
       throw new AppError({ code: 'NoSourceMap' });
     }
 
-    consumer = await new impl(converter.toJSON());
+    sdkSourceMap = new SDK.TextSourceMap(`compiled.js`, `compiled.js.map`, converter.sourcemap);
   }
 
-  if (!consumer) {
+  if (!sdkSourceMap) {
     throw new AppError({ code: 'NoSourceMap' });
   }
 
   return {
-    consumer,
+    sdkSourceMap,
     codeFileContent,
   };
 }
@@ -229,7 +155,7 @@ interface Span {
 }
 
 function computeSpans(sourceMapData: SourceMapData): Span[] {
-  const { consumer, codeFileContent } = sourceMapData;
+  const { sdkSourceMap, codeFileContent } = sourceMapData;
 
   const lines = codeFileContent.split('\n');
   const spans: Span[] = [];
@@ -237,16 +163,16 @@ function computeSpans(sourceMapData: SourceMapData): Span[] {
 
   let lastSource: string | null | undefined = undefined; // not a string, not null
 
-  for (let line = 1; line <= lines.length; line++) {
-    const lineText = lines[line - 1];
+  for (let line = 0; line < lines.length; line++) {
+    const lineText = lines[line];
     const numCols = lineText.length;
 
     for (let column = 0; column < numCols; column++, numChars++) {
-      const { source } = consumer.originalPositionFor({ line, column });
+      const {sourceURL} = sdkSourceMap.findExactEntry(line, column);
 
-      if (source !== lastSource) {
-        lastSource = source;
-        spans.push({ source, numChars: 1 });
+      if (sourceURL !== lastSource) {
+        lastSource = sourceURL;
+        spans.push({ source: sourceURL, numChars: 1 });
       } else {
         spans[spans.length - 1].numChars += 1;
       }
