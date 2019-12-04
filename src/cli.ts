@@ -18,6 +18,7 @@ interface Arguments {
   tsv?: string;
   html?: string;
   onlyMapped?: boolean;
+  excludeSourceMap?: boolean;
   noRoot?: boolean;
   replace?: string[];
   with?: string[];
@@ -30,7 +31,7 @@ function parseArguments(): Arguments {
     .usage('Analyze and debug space usage through source maps.')
     .usage('Usage:')
     .usage(
-      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
+      '$0 script.js [script.js.map] [--json [result.json] | --html [result.html] | --tsv [result.csv]] [-m | --only-mapped] [--exclude-source-map] [--replace=BEFORE_1 BEFORE_2 --with=AFTER_1 AFTER_2] [--no-root] [--version] [--help | -h]'
     )
     .example('$0 script.js script.js.map', 'Explore bundle')
     .example('$0 script.js', 'Explore bundle with inline source map')
@@ -65,6 +66,11 @@ function parseArguments(): Arguments {
           'Exclude "unmapped" bytes from the output. This will result in total counts less than the file size',
       },
 
+      'exclude-source-map': {
+        type: 'boolean',
+        description: 'Exclude source map comment size from output',
+      },
+
       'no-root': {
         type: 'boolean',
         description:
@@ -75,7 +81,7 @@ function parseArguments(): Arguments {
         type: 'string',
         array: true,
         description:
-          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths which appear in the source map generation process. Accepts regular expressions.',
+          'Apply a simple find/replace on source file names. This can be used to fix some oddities with paths that appear in the source map generation process. Accepts regular expressions.',
         implies: 'with',
       },
       with: {
@@ -85,7 +91,7 @@ function parseArguments(): Arguments {
         implies: 'replace',
       },
     })
-    .group(['json', 'tsv', 'html', 'file'], 'Output:')
+    .group(['json', 'tsv', 'html'], 'Output:')
     .group(['replace', 'with'], 'Replace:')
     .help('h')
     .alias('h', 'help')
@@ -154,6 +160,7 @@ function getExploreOptions(argv: Arguments): ExploreOptions {
     },
     replaceMap,
     onlyMapped: argv.onlyMapped,
+    excludeSourceMapComment: argv.excludeSourceMap,
     noRoot: argv.noRoot,
   };
 }

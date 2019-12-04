@@ -2,46 +2,114 @@ exports['api explore should accept buffer with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 3454,
-      "unmappedBytes": 0,
+      "totalBytes": 2991,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 2308,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 2854,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 2308,
+        "[unmapped]": 1
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "Buffer",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/2991 bytes (0.03%)"
+    }
+  ]
 }
 
 exports['api explore should accept buffers with js and map 1'] = {
   "bundles": [
     {
       "bundleName": "Buffer",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 718,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 35,
+        "[unmapped]": 1
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "Buffer",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/718 bytes (0.14%)"
+    }
+  ]
+}
+
+exports['api explore should generate data excluding source map bytes 1'] = {
+  "bundles": [
+    {
+      "bundleName": "data/foo.min.js",
+      "totalBytes": 683,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 35,
+      "files": {
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[unmapped]": 1
+      }
+    },
+    {
+      "bundleName": "data/inline-map.js",
+      "totalBytes": 683,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 2308,
+      "files": {
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[unmapped]": 1
+      }
+    }
+  ],
+  "errors": [
+    {
+      "bundleName": "data/foo.min.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/683 bytes (0.15%)"
+    },
+    {
+      "bundleName": "data/inline-map.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/683 bytes (0.15%)"
+    }
+  ]
 }
 
 exports['api explore should generate data respecting onlyMapped and replace options 1'] = {
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 718,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "hello/bar.js": 97,
-        "hello/foo.js": 137
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 35
       }
     }
   ],
@@ -52,51 +120,107 @@ exports['api explore should generate data when provided with file with reference
   "bundles": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 718,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 35,
+        "[unmapped]": 1
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "data/foo.min.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/718 bytes (0.14%)"
+    }
+  ]
 }
 
 exports['api explore should generate data when provided with file with separated map file 1'] = {
   "bundles": [
     {
       "bundleName": "data/no-map.js",
-      "totalBytes": 662,
-      "unmappedBytes": 0,
+      "totalBytes": 682,
+      "unmappedBytes": 1,
+      "eolBytes": 0,
+      "sourceMapCommentBytes": 0,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 62,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 0,
+        "[unmapped]": 1
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "data/no-map.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/682 bytes (0.15%)"
+    }
+  ]
 }
 
 exports['api explore should generate data when provided with js file with inline map 1'] = {
   "bundles": [
     {
       "bundleName": "data/inline-map.js",
-      "totalBytes": 3454,
-      "unmappedBytes": 0,
+      "totalBytes": 2991,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 2308,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 2854,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 2308,
+        "[unmapped]": 1
       }
     }
   ],
-  "errors": []
+  "errors": [
+    {
+      "bundleName": "data/inline-map.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 1/2991 bytes (0.03%)"
+    }
+  ]
+}
+
+exports['api explore should give name to "null" source a name 1'] = {
+  "bundles": [
+    {
+      "bundleName": "data/no-source.js",
+      "totalBytes": 1547,
+      "unmappedBytes": 13,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 37,
+      "files": {
+        "../webpack/bootstrap": 1491,
+        "[no source]": 5,
+        "[sourceMappingURL]": 37,
+        "[unmapped]": 13
+      }
+    }
+  ],
+  "errors": [
+    {
+      "bundleName": "data/no-source.js",
+      "isWarning": true,
+      "code": "UnmappedBytes",
+      "message": "Unable to map 13/1547 bytes (0.84%)"
+    }
+  ]
 }
 
 exports['api explore when output format specified should generate JSON 1'] = `
@@ -104,13 +228,16 @@ exports['api explore when output format specified should generate JSON 1'] = `
   "results": [
     {
       "bundleName": "data/foo.min.js",
-      "totalBytes": 697,
-      "unmappedBytes": 0,
+      "totalBytes": 718,
+      "unmappedBytes": 1,
+      "eolBytes": 1,
+      "sourceMapCommentBytes": 35,
       "files": {
-        "node_modules/browserify/node_modules/browser-pack/_prelude.js": 463,
-        "dist/bar.js": 97,
-        "dist/foo.js": 137,
-        "<unmapped>": 0
+        "node_modules/browser-pack/_prelude.js": 480,
+        "src/bar.js": 104,
+        "src/foo.js": 97,
+        "[sourceMappingURL]": 35,
+        "[unmapped]": 1
       }
     }
   ]
@@ -119,13 +246,15 @@ exports['api explore when output format specified should generate JSON 1'] = `
 
 exports['api explore when output format specified should generate TSV 1'] = `
 Source\tSize\r
-node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
-dist/foo.js\t137\r
-dist/bar.js\t97\r
-<unmapped>\t0\r
+node_modules/browser-pack/_prelude.js\t480\r
+src/bar.js\t104\r
+src/foo.js\t97\r
+[sourceMappingURL]\t35\r
+[unmapped]\t1\r
 \r
-dist/bar.js\t2854\r
-node_modules/browserify/node_modules/browser-pack/_prelude.js\t463\r
-dist/foo.js\t137\r
-<unmapped>\t0
+[sourceMappingURL]\t2308\r
+node_modules/browser-pack/_prelude.js\t480\r
+src/bar.js\t104\r
+src/foo.js\t97\r
+[unmapped]\t1
 `

@@ -1,7 +1,7 @@
 import glob from 'glob';
 import { partition, flatMap, isString } from 'lodash';
 
-import { exploreBundle, UNMAPPED_KEY } from './explore';
+import { exploreBundle, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY } from './explore';
 import { AppError, getErrorMessage } from './app-error';
 import {
   BundlesAndFileTokens,
@@ -113,20 +113,29 @@ function getExploreResult(
   };
 }
 
+const SPECIAL_FILENAMES = [UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY];
+
 function getPostExploreErrors(exploreBundleResults: ExploreBundleResult[]): ExploreErrorResult[] {
   const errors: ExploreErrorResult[] = [];
+
+  const isSingleBundle = exploreBundleResults.length === 1;
 
   for (const result of exploreBundleResults) {
     const { bundleName, files, totalBytes } = result;
 
     // Check if source map contains only one file - this make result useless when exploring single bundle
-    const filenames = Object.keys(files).filter(filename => filename !== UNMAPPED_KEY);
-    if (filenames.length === 1) {
-      errors.push({
-        bundleName,
-        code: 'OneSourceSourceMap',
-        message: getErrorMessage({ code: 'OneSourceSourceMap', filename: filenames[0] }),
-      });
+    if (isSingleBundle) {
+      const filenames = Object.keys(files).filter(
+        filename => !SPECIAL_FILENAMES.includes(filename)
+      );
+      if (filenames.length === 1) {
+        errors.push({
+          bundleName,
+          isWarning: true,
+          code: 'OneSourceSourceMap',
+          message: getErrorMessage({ code: 'OneSourceSourceMap', filename: filenames[0] }),
+        });
+      }
     }
 
     const unmappedBytes = files[UNMAPPED_KEY];

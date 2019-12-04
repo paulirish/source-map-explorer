@@ -1,6 +1,7 @@
 import { explore } from './api';
+import { UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY } from './explore';
 
-export { explore };
+export { explore, UNMAPPED_KEY, SOURCE_MAP_COMMENT_KEY, NO_SOURCE_KEY };
 
 export default explore;
 
@@ -11,6 +12,8 @@ export type FileSizeMap = Record<string, number>;
 export interface FileSizes {
   files: FileSizeMap;
   unmappedBytes: number;
+  eolBytes: number;
+  sourceMapCommentBytes: number;
   totalBytes: number;
 }
 
@@ -20,6 +23,8 @@ export type ErrorCode =
   | 'NoSourceMap'
   | 'OneSourceSourceMap'
   | 'UnmappedBytes'
+  | 'InvalidMappingLine'
+  | 'InvalidMappingColumn'
   | 'CannotSaveFile'
   | 'CannotCreateTempFile'
   | 'CannotOpenTempFile';
@@ -39,6 +44,8 @@ export interface Bundle {
 export interface ExploreOptions {
   /** Exclude "unmapped" bytes from the output */
   onlyMapped?: boolean;
+  /** Exclude source map comment size from output */
+  excludeSourceMapComment?: boolean;
   /** Output result as a string */
   output?: {
     format: OutputFormat;
@@ -71,3 +78,10 @@ export interface ExploreErrorResult {
 }
 
 export type BundlesAndFileTokens = (Bundle | string)[] | Bundle | string;
+
+// TODO: Remove when https://github.com/mozilla/source-map/pull/374 is merged
+declare module 'source-map' {
+  export interface MappingItem {
+    lastGeneratedColumn: number | null;
+  }
+}
