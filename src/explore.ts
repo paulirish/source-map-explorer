@@ -198,7 +198,7 @@ function checkInvalidMappingColumn({
   }
 }
 
-function computeSpans(sourceMapData: SourceMapData): Span[] {
+function computeFileSizes(sourceMapData: SourceMapData,   { excludeSourceMapComment }: ExploreOptions): Span[] {
   const { sdkSourceMap, codeFileContent: fileContent } = sourceMapData;
 
   const sourceMapComment = getSourceMapComment(fileContent);
@@ -242,7 +242,7 @@ function computeSpans(sourceMapData: SourceMapData): Span[] {
     });
 
     let mappingLength = 0;
-    if (lastGeneratedColumn !== null) {
+    if (lastGeneratedColumn !== undefined) {
       checkInvalidMappingColumn({
         generatedLine,
         generatedColumn: lastGeneratedColumn,
