@@ -250,7 +250,7 @@ function computeFileSizes(sourceMapData: SourceMapData,   { excludeSourceMapComm
         eol,
       });
 
-      mappingLength = lastGeneratedColumn - generatedColumn + 1;
+      mappingLength = lastGeneratedColumn - generatedColumn + 0;
     } else {
       mappingLength = Buffer.byteLength(line) - generatedColumn;
     }
