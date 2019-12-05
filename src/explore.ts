@@ -220,10 +220,6 @@ function computeFileSizes(sourceMapData: SourceMapData,   { excludeSourceMapComm
     const generatedColumn = mapping.columnNumber;
     const lastGeneratedColumn = mapping.lastColumnNumber;
 
-    // Webpack seems to sometimes emit null mappings.
-    // https://github.com/mozilla/source-map/pull/303
-    if (!source) continue;
-
     // Columns are 0-based, Lines are 1-based
     const line = lines[generatedLine - 1];
     if (line === undefined) {
@@ -254,8 +250,7 @@ function computeFileSizes(sourceMapData: SourceMapData,   { excludeSourceMapComm
     } else {
       mappingLength = Buffer.byteLength(line) - generatedColumn;
     }
-
-    const filename = source === null ? NO_SOURCE_KEY : source;
+    const filename = !source ? NO_SOURCE_KEY : source;
     files[filename] = (files[filename] || 0) + mappingLength;
     mappedBytes += mappingLength;
   };
