@@ -32,10 +32,10 @@ function requireval(path) {
 global.window = global.self = global.global = global;
 global.SDK = {};
 global.Common = {};
-requireval('../../source-map/cdt/common/Object.js');
-requireval('../../source-map/cdt/common/Console.js');
-requireval('../../source-map/cdt/platform/utilities.js');
-requireval('../../source-map/cdt/sdk/SourceMap.js');
+requireval('../third_party/cdt/Object.js');
+requireval('../third_party/cdt/Console.js');
+requireval('../third_party/cdt/utilities.js');
+requireval('../third_party/cdt/SourceMap.js');
 
 
 SDK.TextSourceMap.prototype.findExactEntry = function(line, column) {
