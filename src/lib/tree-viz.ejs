@@ -101,4 +101,19 @@ const treeDataMap = <%- JSON.stringify(treeDataMap) %>;
 
   selectBundle(selectedBundleId);
 </script>
+
+<iframe srcdoc='
+  <!DOCTYPE html><html>
+  <style>
+    <%= evizCss %>
+  </style>
+
+  <%- evizHtml %>
+
+  <script>
+    <%= evizJs %>
+  </script>
+'
+</iframe>
+
 </html>

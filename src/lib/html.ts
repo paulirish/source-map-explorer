@@ -62,12 +62,19 @@ export function generateHtml(
 
   const template = getFileContent(path.join(__dirname, 'tree-viz.ejs'));
 
+  const evizJs = fs.readFileSync('./evanw-viz/code.js', {encoding: 'utf-8'});
+  const evizHtml = fs.readFileSync('./evanw-viz/index.html', {encoding: 'utf-8'});
+  const evizCss = fs.readFileSync('./evanw-viz/style.css', {encoding: 'utf-8'});
+
   return ejs.render(template, {
     options,
     bundles,
     treeDataMap,
     webtreemapJs: assets.webtreemapJs,
     webtreemapCss: assets.webtreemapCss,
+    evizJs,
+    evizHtml,
+    evizCss,
   });
 }
 
