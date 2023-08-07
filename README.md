@@ -250,7 +250,7 @@ source-map-explorer script.js --html
 ...
   selectBundle(selectedBundle);
 </script>
-<html>
+</html>
 ```
 ### Explore and save result as HTML file
 ```

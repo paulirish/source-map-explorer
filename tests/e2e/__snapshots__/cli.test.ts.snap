@@ -181,7 +181,7 @@ const treeDataMap = {"0":{"name":"data/inline-map.js","data":{"name":"/ \u2022 2
 
   selectBundle(selectedBundleId);
 </script>
-<html>
+</html>
 
 
 `

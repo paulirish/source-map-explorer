@@ -51,6 +51,38 @@ function sortFilesBySize([, aSize]: [string, number], [, bSize]: [string, number
   return bSize - aSize;
 }
 
+
+// Whatever this is its dumb.
+function getViz(treemapHtml) {
+  const js = fs.readFileSync('./evanw-viz/code.js', {encoding: 'utf-8'});
+  const html = fs.readFileSync('./evanw-viz/index.html', {encoding: 'utf-8'});
+  const css = fs.readFileSync('./evanw-viz/style.css', {encoding: 'utf-8'});
+
+  const iframeHTML = `
+    <style>${decodeURIComponent(css)}</style>
+    ${decodeURIComponent(html)}
+    <script>${decodeURIComponent(js)}</script>
+  `;
+
+  return treemapHtml.replace(
+    '</html>',
+    `
+  <script>
+    function injectViz() {
+      const ifr = document.createElement('iframe');
+      document.body.append(ifr);
+      ifr.contentDocument.head.innerHTML = \`<script>
+        document.body.innerHTML = '<style>${decodeURIComponent(css)}</style>
+    
+      </script>\`;
+    };
+    injectViz();
+  </script>
+  </html>
+  `
+  );
+}
+
 export function saveOutputToFile(result: ExploreResult, options: ExploreOptions): void {
   if (!options.output) {
     return;
@@ -62,9 +94,10 @@ export function saveOutputToFile(result: ExploreResult, options: ExploreOptions)
   if (output && filename) {
     try {
       const dir = path.dirname(filename);
+      const html = getViz(output);
 
       fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(filename, output);
+      fs.writeFileSync(filename, html);
     } catch (error) {
       throw new AppError({ code: 'CannotSaveFile' }, error);
     }
