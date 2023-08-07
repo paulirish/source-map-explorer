@@ -44,7 +44,7 @@ export async function explore(
 
   // Separate bundles from file tokens
   const [fileTokens, bundles] = partition(bundlesAndFileTokens, isString);
-
+  debugger;
   // Get bundles from file tokens
   bundles.push(...getBundles(fileTokens));
 
