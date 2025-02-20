@@ -82,6 +82,7 @@ export type BundlesAndFileTokens = (Bundle | string)[] | Bundle | string;
 // TODO: Remove when https://github.com/mozilla/source-map/pull/374 is merged
 declare module 'source-map' {
   export interface MappingItem {
+    // This is a poor name. I'd prefer ~computing the endColumnNumber or mappingEndColumn
     lastGeneratedColumn: number | null;
   }
 }

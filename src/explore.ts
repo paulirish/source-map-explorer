@@ -55,6 +55,7 @@ SDK.TextSourceMap.prototype.findExactEntry = function(line, column) {
 }
 
 
+// This is a poor name. I'd prefer ~computing the endColumnNumber or mappingEndColumn
 SDK.TextSourceMap.prototype.computeLastGeneratedColumns = function() {
   const mappings = this.mappings();
   // @ts-ignore
